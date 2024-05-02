@@ -1,0 +1,132 @@
+:root {
+    --text-color: #000000;
+    --main-bg: #aaaaaa;
+
+    --sidebar-bg-color: #ffffff;
+
+    --toolbar-bg: #e5e5e5;
+    --toolbar-border-color: #bababa;
+    --toolbar-bg-dark: linear-gradient(#dedede, #b0b0b0);
+    --toolbar-bg-dark-active: linear-gradient(#b0b0b0, #dedede);
+    --toolbar-border-color-dark: #999999;
+
+    --editor-bg: #ffffff;
+    --editor-text-color: #000000;
+
+    --slider-bg: #cccccc;
+    --slider-fg-color: #333333;
+
+    --results-bg: #ffffff;
+    --results-table-border: #000000;
+    --results-table-header-bg: #e5e5e5;
+    --results-table-header-alt-border: #ffffff;
+    --results-table-bg: #ffffff;
+    --results-table-bg-selected: rgba(109, 174, 228,1);
+    --results-table-text-selected: #ffffff;
+    --results-table-bg-selected-alt: rgba(0, 120, 215, 1);
+    --results-table-bg-alt: rgba(219, 229, 241, 1);
+    --results-table-numbers-color: rgba(0, 0, 0, .6);
+    --tab-active: linear-gradient(#e5e5e5, #ffffff);
+    --close-hover-color: red;
+
+    --button-hover: orange;
+    --button-border-light: #bcbcbc;
+    --sidebar-highlight: rgba(109, 174, 228,.3);
+    --overlay-transparent-bg: rgba(0, 0, 0, .3);
+    --output-overlay-bg: rgba(0, 0, 0, .4);
+}
+
+html, body { color: var(--text-color); background: var(--main-bg); }
+
+overlay#login .card-left { background: var(--main-bg); }
+overlay.chooser { background: var(--overlay-transparent-bg); }
+overlay.chooser .message-box .title { background: var(--toolbar-bg); border-color: var(--toolbar-border-color); }
+overlay.chooser .message-box .message { background: var(--editor-bg); }
+overlay.chooser .message-box .buttons { background: var(--toolbar-bg); border-color: var(--toolbar-border-color); }
+
+toolbar { background: var(--toolbar-bg); border-color: var(--toolbar-border-color); }
+toolbar.topnav button { border-color: var(--button-border-light); }
+toolbar.topnav button text { border-color: var(--button-border-light); }
+toolbar.topnav button text { background: var(--editor-bg); }
+toolbar.topnav button.btn-add-tab text { background: var(--toolbar-bg); }
+
+sidebar > div > toolbar > button:hover { color: var(--button-hover); }
+
+sidebar { background: var(--sidebar-bg-color); }
+sidebar li > button:focus { background: var(--sidebar-highlight); outline: 0; }
+slider { background: var(--slider-bg); color: var(--slider-fg-color); }
+editor { background: var(--editor-bg); color: var(--editor-text-color); }
+editor controls,
+output controls { background: var(--toolbar-bg); border-color: var(--toolbar-border-color); }
+editor.controls controls { 
+    border-color: var(--toolbar-border-color);
+}
+output controls { border-color: var(--toolbar-border-color-dark); }
+tabs item#tabs { background: var(--toolbar-bg-dark); border-color: var(--toolbar-border-color-dark); }
+tabs > selector { background: var(--toolbar-bg-dark); }
+tab { background: var(--toolbar-bg); border-color: var(--toolbar-border-color-dark); }
+tab.active { background: var(--tab-active); }
+statusbar { background: var(--toolbar-bg); border-color: var(--toolbar-border-color); }
+statusbar item { border-color: var(--toolbar-border-color); }
+
+output results table th { 
+    background: var(--results-table-header-bg); 
+    border-color: var(--results-table-border);
+    border-top-color: var(--results-table-header-alt-border); 
+    border-left-color: var(--results-table-header-alt-border); 
+}
+
+output results table th data { border-left-color: var(--results-table-header-alt-border); }
+
+output results table td { 
+    border-color: var(--results-table-border); 
+    background: var(--results-table-bg); 
+    border-top-color: var(--results-table-bg); 
+    border-bottom-color: var(--results-table-bg); 
+    border-left-color: var(--results-table-bg); 
+    border-right-color: var(--results-table-bg);
+}
+
+output results table tbody tr:nth-child(even) td { 
+    background-color: var(--results-table-bg-alt); 
+    border-top-color: var(--results-table-bg-alt); 
+    border-bottom-color: var(--results-table-bg-alt); 
+}
+output results tr th:first-child data { color: var(--results-table-numbers-color); }
+output results table td.selected { background-color: var(--results-table-bg-selected); color: var(--results-table-text-selected); }
+output results table tr:nth-child(even) td.selected { background-color: var(--results-table-bg-selected-alt); }
+output text { background-color: var(--results-bg); }
+output toolbar item button:hover { color: var(--button-hover); }
+output loading { background: var(--output-overlay-bg);  }
+output loading > div > div { background: var(--toolbar-bg); border-color: var(--toolbar-border-color); }
+output loading button:hover { color: var(--close-hover-color); }
+tab button:hover { color: var(--close-hover-color); }
+controls button:hover { color: var(--button-hover); }
+
+controls button.activated { border-color: var(--toolbar-border-color-dark);  background: var(--results-bg); }
+controls button.activated:hover { color: var(--text-color); }
+
+tabs > button,
+tabs > selector button { background: var(--toolbar-bg); border-color: var(--toolbar-border-color-dark); }
+tabs > selector button.activated { background: var(--tab-active); }
+tabs > selector ul { background: var(--editor-bg); border-color: var(--toolbar-border-color); }
+
+.tab-settings, .tab-settings div { background: var(--toolbar-bg); }
+
+sidebar i.fa-database { color: brown; }
+sidebar i.fa-folder { color: orange; }
+sidebar i.fa-file-lines { color: purple; }
+sidebar i.fa-table { color: navy; }
+sidebar i.fa-columns { color: navy; }
+sidebar i.fa-layer-group { color: navy; }
+sidebar i.fa-user { color: gray; }
+
+sidebar span.extra { color: var(--toolbar-border-color-dark); }
+
+overlay.chooser .message-box .buttons button:hover { background: var(--toolbar-bg-dark); }
+overlay.chooser .message-box .buttons button:active { background: var(--toolbar-bg-dark-active); }
+
+
+.sidebar-context-menu { background: var(--toolbar-bg); border-color: var(--toolbar-border-color-dark); }
+.sidebar-context-menu a { color: var(--text-color); }
+.sidebar-context-menu a:hover { background: var(--toolbar-bg-dark); }

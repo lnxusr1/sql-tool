@@ -1,0 +1,1 @@
+export var api_url = "/api/index";

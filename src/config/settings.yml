@@ -1,0 +1,60 @@
+version: 1.0.0
+
+authenticator:
+  type: openldap
+  connection:
+    host: localhost
+    port: 389
+    options:
+      login_is_role: false
+      base_dn: dc=example,dc=com
+      user_search_filter: (&(objectClass=person)(uid={USERNAME}))
+      user_pattern: uid={USERNAME},ou=people,dc=example,dc=com
+      user_group_search_filter: (&(objectClass=posixGroup)(memberUid={USERNAME}))
+
+tokenizer:
+  type: redis
+  connection:
+    host: localhost
+    port: 6379
+    options:
+      ssl: true
+
+connections:
+  myconn1:
+    type: postgres
+    connection:
+      host: localhost
+      port: 5432
+      options:
+        sslmode: require
+      roles:
+        lnxusr1:
+          password: my_db_password_here
+          auth_groups:
+            - MyGroup
+            - myapp_ldap_group2
+        myapp_db_username2:
+          password: password2
+          auth_groups:
+            - MyGroup
+            - myapp_ldap_group2
+
+  myconn2:
+    type: postgres
+    connection:
+      host: localhost
+      port: 5432
+      options:
+        sslmode: require
+      roles:
+        lnxusr1:
+          password: my_db_password_here
+          auth_groups:
+            - MyGroup
+            - myapp_ldap_group2
+        myapp_db_username4:
+          password: my_db_password_here
+          auth_groups:
+            - myapp_ldap_group1
+            - myapp_ldap_group2

@@ -1,0 +1,176 @@
+html, body {
+    padding: 0;
+    margin: 0;
+    font-size: 12pt;
+    min-height: 100%;
+    font-family: Arial, Helvetica, Sans-Serif;
+    overflow: hidden;
+}
+
+page, overlay, sidebar, editor, slider, statusbar, toolbar, code, textarea.code, item, box, section, results, data, tabs { display: block; box-sizing: border-box; }
+
+overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 200; }
+overlay#login > div { display: flex; flex-direction: row; height: 100vh; }
+overlay#login .card-left { flex: 1; }
+overlay#login .card { width: 35%; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+/* overlay#login .card { position: absolute; top: calc(50% - 70px); left: calc(50% - 100px); max-width: 220px; } */
+
+overlay#login .card h1 { padding: 0 36px; height: 60px; }
+overlay#login .card div { padding: 10px 36px; height: 60px; }
+overlay#login .card form { padding: 10px 36px; }
+overlay#login .card input { border: 1px solid #000000; padding: 0 10px; border-radius: 4px; line-height: 36px; font-size: 1rem; margin-bottom: 16px; width: 100%; box-sizing: border-box; }
+overlay#login .card button { border: 1px solid #000000; border-radius: 4px; line-height: 36px; font-size: 1rem; padding: 0 10px; width: 100%; }
+
+overlay.chooser > div { display: flex; justify-content: center; align-items: center; height: 100vh; }
+overlay.chooser .message-box .title { user-select:none; position: relative; width: calc(100% - 30px); font-size: 1.2rem; line-height: 48px; height: 48px; padding: 0 15px; border-top-left-radius: 6px; border-top-right-radius: 6px; border-bottom: 1px solid #000000; }
+overlay.chooser .message-box .title button { position: absolute; font-size: .9rem; line-height: 22px; height: 24px; width: 24px; text-align: center; top: 12px; right: 15px; padding: 0; border: 0; background: transparent; }
+overlay.chooser .message-box .message { user-select: none; min-width: 300px; padding: 20px 15px; }
+overlay.chooser .message-box .message > div > ul { margin: 0; padding-top: 10px; }
+#select-connection > ul > li > span { font-weight: bold; }
+
+overlay.chooser#database-chooser .message-box .message > div > ul { list-style: none; }
+overlay.chooser#database-chooser .message-box .message > div > ul > li { margin-bottom: 6px; }
+overlay.chooser#database-chooser .message-box .message > div > ul > li:last-child { margin-bottom: 0; }
+overlay.chooser .message-box .message > div > ul > li > ul { padding-top: 2px; margin-bottom: 10px; list-style: none; padding-left: 0; }
+overlay.chooser .message-box .message > div > ul > li > ul > li > label { display: inline-block; margin-left: 5px; }
+overlay.chooser.message-box .message > div > ul > li:last-child > ul { margin-bottom: 0; }
+overlay.chooser .message-box .buttons { user-select: none; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; width: calc(100% - 30px); padding: 0 15px; border-top: 1px solid #000000; }
+overlay.chooser .message-box .buttons ul { margin: 0; display: flex; list-style: none; flex-direction: row; justify-content: flex-end; }
+overlay.chooser .message-box .buttons ul li { padding: 10px 0 10px 6px; }
+overlay.chooser .message-box .buttons button { border: 1px solid #000000; padding: 0 12px; line-height: 28px; height: 28px; border-radius: 3px;}
+
+button { cursor: pointer; }
+
+toolbar { height: 36px; line-height: 36px; padding: 0 12px; overflow: hidden; user-select: none; border-bottom: 1px solid #000000; }
+toolbar button { display: inline-block; position: relative; font-size: 1rem;  padding: 0;  border: 1px solid #000000; height: 24px; line-height: 24px; border-radius: 3px; }
+toolbar button icon { display: block; float: left; height: 100%; width: 24px; text-align: center; }
+toolbar button icon.no-float { float: none; }
+toolbar button text { display: block; margin-left: 24px; padding: 0 6px; border-left: 1px solid #000000; font-size: 0.9rem; height: 100%; border-top-right-radius: 3px; border-bottom-right-radius: 3px; }
+
+toolbar > div { display: flex; justify-content: flex-start; }
+toolbar.topnav > div > item:last-child { flex: 1; min-width: 60px; text-align: right; }
+toolbar.topnav > div > item:first-child { padding-right: 5px;}
+
+page { display: flex; height: calc(100vh - 56px); width: 100%; flex-direction: row; }
+
+sidebar { width: 240px; resize: horizontal; user-select: none; white-space: nowrap; font-size: 0.9rem; }
+sidebar ul { list-style: none; padding-left: 16px; }
+sidebar > div { position: relative; width: 100%; height: 100%; padding-top: 24px; }
+sidebar > div > div { font-size: 1rem; width: 100%; height: calc(100% - 24px); overflow: auto; }
+sidebar > div > div > ul { padding: 8px 8px; margin-top: 0; position: relative; }
+sidebar li { padding: 2px 0; display: block; }
+sidebar li > button { cursor: pointer; border: none; background: transparent; padding: 2px 0; border-radius: 3px; text-align: left; min-width: 100%; }
+sidebar > div > div > ul > li > button { min-width: 100%;}
+sidebar li > button span { display: inline-block; margin-left: 4px; }
+slider.hslider { width: 6px; overflow: hidden; user-select: none; cursor: col-resize; line-height: 12px; }
+slider.hslider div { position: absolute; top: calc(50% - 40px); width: 6px; text-align: center; padding: 10px 0; }
+
+sidebar toolbar { position: absolute; top: 0; width: 100%; height: 24px; line-height: 24px; text-align: right; }
+sidebar toolbar > button { border: none; background: transparent; font-size: .8rem; padding: 0 2px; }
+
+page > core { flex: 1; overflow: auto; }
+page > core > box { display: none; height: calc(100vh - 56px); width: 100%; flex-direction: column; }
+page > core > box.active { display: flex; }
+page > core > tabs { display: none; }
+page > core.tabs > box { height: calc(100vh - 80px); }
+page > core.tabs > tabs { display: block; z-index: 100; }
+page > core > tabs item#tabs { white-space: nowrap; user-select: none; height: 24px; min-width: 100%; overflow: hidden; padding-left: 25px; font-size: 0.2rem; }
+page > core > tabs item#tabs tab:first-child { margin-left: 2px; }
+page > core > tabs item#tabs tab.active { margin-top: 2px; z-index: 101; }
+
+editor { height: 50%; resize: vertical; overflow: hidden; }
+editor > div { position: relative; flex-direction: column; width: 100%; height: 100%; }
+
+tabs { position: relative; }
+tabs > button { position: absolute; left: 3px; top: 2px; display: block; height: 20px; line-height: 19px; padding: 0; text-align: center; width: 21px; border: 1px solid #000000; border-radius: 0px; border-radius: 3px; z-index: 103; font-size: 0.7rem; }
+
+tabs > selector { display: block; position: absolute; right: 0; height: 22px; padding-right: 4px; padding-top: 2px; font-size: 1rem; }
+tabs > selector button { display: block; height: 22px; line-height: 22px; padding: 0 6px; border: 1px solid #000000; border-radius: 0px; border-bottom: none; border-top-right-radius: 3px; border-top-left-radius: 3px; z-index: 103; border-bottom: none; position: relative; }
+tabs > selector ul { display:none; list-style: none; margin: 0; padding: 0; position: absolute; top: 23px; right: 0; width: auto; white-space: nowrap; z-index: 102; border: 1px solid #000000; border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; }
+tabs > selector ul li { display: block; padding: 0 8px; line-height: 18px; height: 18px; font-size: 0.9rem; cursor: pointer; }
+tabs > selector ul li:last-child { border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; }
+
+tab { display: inline-block; white-space: nowrap; margin: 0 1px 0 0; height: 20px; line-height: 20px; font-size: 0.9rem; padding: 0 5px; border-top-right-radius: 4px; border-top-left-radius: 4px; border: 1px solid #000000; cursor: pointer; }
+tab button { margin-left: 4px; padding: 0; border-radius: 3px; border: none; background: transparent; font-size: 0.7rem; }
+tab.active { height: 21px; }
+
+.tab-settings { display: none; position: absolute; left: 28px; top: 40px; border-bottom-right-radius: 6px; }
+.tab-settings div { display: block; position: absolute; right: -24px; height: 24px; width: 24px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+.tab-settings div button { padding: 0; border: 0; line-height: 20px; padding-bottom: 4px; font-size: 0.85rem; }
+.tab-settings ul { padding: 15px; list-style: none; margin: 0; }
+.tab-settings li { display: flex; flex-direction: row; justify-content: flex-start; flex-wrap: nowrap; }
+.tab-settings li span { display: block; white-space: nowrap; text-align: left; margin: 4px 0; }
+.tab-settings li span.name { min-width: 100px; font-weight: bold; }
+.tab-settings li span:first-child::after { content: ":" }
+.tab-settings li span:last-child { padding-left: 6px; flex: 1; }
+
+
+editor item#text { height: 100%; position: relative; }
+
+editor controls { display: none; position: absolute; top: 0; left: -28px; width: 27px; height: calc(100% - 6px); border-right: 1px solid #000000; padding: 5px 0; text-align: center; }
+output controls { display: none; position: absolute; top: 0; left: 0; width: 27px; height: calc(100% - 5px); border-right: 1px solid #000000; padding: 5px 0; text-align: center; }
+editor controls button,
+output controls button { background-color: transparent; padding: 0; border: 1px solid transparent; width: 22px; height: 30px; text-align: center; border-radius: 3px; line-height: 30px; font-size: 1.05rem; margin-bottom: 5px; }
+editor controls button.small,
+output controls button.small { font-size: 0.8rem; }
+controls button.activated { border: 1px solid black; display: block; width: calc(100% - 1px); margin-left: 2px; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+
+editor.controls item#text,
+output.controls section { width: calc(100% - 28px); margin-left: 28px;}
+editor.controls controls,
+output.controls controls { display: block; }
+
+editor.controls controls { border-top: 1px solid #000000; }
+editor item#text > .code { white-space: pre; width: 100%; height: 100%; overflow: scroll; padding: 6px; border: none; font-size: 0.9rem; }
+editor item#text > .code:focus-visible { outline: none; }
+
+slider.vslider { height: 6px; line-height: 6px; overflow: hidden; text-align: center; cursor: row-resize; user-select: none; }
+
+output { flex: 1; overflow: hidden; position: relative; }
+output section { position: relative; height: 100%; }
+output loading { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+output loading > div { display: flex; justify-content: center; align-items: center; height: 100%; }
+output loading > div > div { display: inline-block; border-radius: 14px; line-height: 28px; padding: 0 16px; height: 28px; font-size: 0.9rem; }
+output loading > div > div span { margin-left: 6px; }
+output loading > div > div button { border: 0; background: transparent; padding: 0; margin-left: 6px; }
+
+output toolbar { height: 28px; line-height: 28px; position: absolute; bottom: -1px; left: 0; right: 0; font-size: 0.9rem; padding: 0; }
+output toolbar item { padding: 0 8px; }
+output toolbar item > span,
+output toolbar item > loading > span { font-size: 0.75rem; display: inline-block; line-height: 16px; vertical-align: middle; }
+output toolbar item > loading { display: none; }
+output toolbar item > loading > button { display: none; }
+output toolbar item button { border: 1px solid transparent; border-radius: 3px; background-color: transparent; font-size: 0.95rem;  padding: 2px 4px; }
+
+output text { display: block; width: calc(100% - 20px); height: calc(100% - 20px); overflow: scroll; padding: 10px; white-space: pre; font-size: 0.9rem; user-select: all; font-family: monospace; }
+output results { width: 100%; height: 100%; overflow: auto; position: relative; }
+output results table { border-spacing: 0; border-collapse: collapse; margin-left: 0; user-select: none; }
+output results thead { display: block; position: absolute; top: 0; left: 0; width: 100%; cursor: pointer; user-select: none; }
+output results thead th { position: relative;}
+output results thead th spacer { display: block; height: 24px; overflow: hidden; }
+output results thead th data { width: 100px; height: 24px; overflow: hidden; line-height: 24px; resize: horizontal; }
+output results thead th handle { display: block; width: calc(100% - 5px); height: 24px; position: absolute; left: 0; top: 0; }
+output results tbody { display: block; margin-top: 25px; }
+output results th { border: 1px solid #000000; font-weight: normal; font-size: 0.85rem; }
+output results table th data { border-left: 1px solid var(--results-table-header-alt-border); }
+output results tr th:first-child { min-width: 54px; cursor: pointer; user-select: none; text-align: right; }
+output results tr th:first-child data { padding: 0 4px; font-weight: bold; border-left: none; }
+
+output results tr td { white-space: nowrap; border: 1px solid #000000;  }
+output results tr td data { display: block; width: 100px; height: 24px; overflow: hidden; line-height: 24px; padding: 0 2px; font-size: 0.80rem; }
+
+.number, .date, .timestamp { text-align: right; }
+
+statusbar { height: 20px; user-select: none; border-top: 1px solid #000000; }
+statusbar > div { display: flex; align-content: flex-end; }
+statusbar item { padding: 0 12px; font-size: 0.7rem; line-height: 19px; height: 19px; border-left: 1px solid #000000; }
+statusbar item:first-child { flex: 1; border-left: none; }
+
+
+body > overlay, body > page, body > statusbar, body > toolbar { display: none; }
+.sidebar-context-menu { display:none; position: absolute; z-index: 10000; border: 1px solid #000000; border-radius: 3px; font-size: 0.75rem; min-width: 140px; }
+.sidebar-context-menu ul { list-style: none; margin: 0; padding: 0; }
+.sidebar-context-menu a { text-decoration: none; display: block; padding: 4px 8px; border-radius: 3px;}
+.as-code { white-space: pre; font-family: monospace; font-size: 0.9rem; user-select: all; }
+overlay .message-box { max-width: 90%; max-height: 90%; }
+overlay .message { overflow: auto; }

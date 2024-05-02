@@ -1,0 +1,244 @@
+<!doctype html>
+<html class="no-js" lang="en-US">
+<head>
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>DB Query Tool</title>
+
+    <link rel="icon" type="image/png" href="favicon.svg">
+    <meta name="msapplication-TileImage" content="favicon.svg">
+
+    <link rel="stylesheet" href="libs/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="theme.css" />
+    <script type="text/javascript" src="libs/jquery/jquery-3.7.1.min.js"></script>
+    <script src="script.js" type="module"></script>
+
+</head>
+<body>
+    <div class="sidebar-context-menu">
+        <ul>
+            <li><a id="btn-generate-ddl" href="#">Generate DDL...</a></li>
+        </ul>
+    </div>
+    <overlay class="chooser" id="ddl-data">
+        <div>
+            <div class="message-box">
+                <div class="title">
+                    <span>Select Connection</span>
+                    <button class="btn-chooser-close" overlay-target="#ddl-data"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="message">
+                    <div class="as-code" id="ddl-statement">
+                        
+                    </div>
+                </div>
+                <div class="buttons">
+                    <ul>
+                        <li><button class="btn-chooser-close" overlay-target="#ddl-data">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </overlay>
+    <overlay class="chooser" id="connection-chooser">
+        <div>
+            <div class="message-box">
+                <div class="title">
+                    <span>Select Connection</span>
+                    <button class="btn-chooser-close" overlay-target="#connection-chooser"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="message">
+                    <div id="select-connection">
+                        <span>Please select a role from the list below:</span>
+                        <ul>
+                        </ul>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <ul>
+                        <li><button class="btn-chooser-close" overlay-target="#connection-chooser">Cancel</button></li>
+                        <li><button id="btn-select-connection">Next</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </overlay>
+    <overlay class="chooser" id="database-chooser">
+        <div>
+            <div class="message-box">
+                <div class="title">
+                    <span>Select Database</span>
+                    <button class="btn-chooser-close" overlay-target="#database-chooser"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="message">
+                    <div id="select-database">
+                        <span>Please select a database from the list below:</span>
+                        <ul>
+                        </ul>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <ul>
+                        <li><button class="btn-chooser-close" overlay-target="#database-chooser">Cancel</button></li>
+                        <li><button id="btn-select-database">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </overlay>
+    <overlay id="login">
+        <div>
+            <div class="card-left"></div>
+            <div class="card">
+                <h1 class="logo"></h1>
+                <form>
+                    <h2>Sign In</h2>
+                    <span>Username</span>
+                    <input type="text" id="username" placeholder="Please enter your login" autocomplete="off" />
+                    <span>Password</span>
+                    <input type="password" id="password" placeholder="Please enter your password" autocomplete="off" />
+                    <button id="login">Login</button>
+                    <span>&nbsp;</span>
+                    <h2>&nbsp;</h2>
+                </form>
+                <div>Footer</div>
+            </div>
+        </div>
+    </overlay>
+    <toolbar class="topnav">
+        <div>
+            <item>
+                <button title="Select Role" class="btn-role-name"><icon><i class="fas fa-plug fa-fw"></i></icon><text><span id="role_name"></span>@<span id="conn_name"></span></text></button>
+                <button title="Select Database" class="btn-db-name"><icon><i class="fas fa-database fa-fw"></i></icon><text><span id="database_name">&nbsp;</span></text></button>
+                <button class="btn-add-tab"><icon><i class="fas fa-plus fa-fw"></i></icon><text>New Tab</text></button> 
+                
+                <!--
+                <button><icon><i class="fas fa-save fa-fw"></i></icon><text>Commit</text></button>
+                <button><icon><i class="fas fa-rotate-left fa-fw"></i></icon><text>Rollback</text></button>
+                -->
+            </item>
+            <item>
+                <button title="Execute [Ctrl + Q]" class="btn-execute"><icon class="no-float"><i class="fas fa-play fa-fw"></i></icon></button>
+                <button title="Export" class="btn-download"><icon class="no-float"><i class="fas fa-download fa-fw"></i></icon></button>
+                <button title="Refresh" class="btn-refresh"><icon class="no-float"><i class="fas fa-rotate fa-fw"></i></icon></button>
+            </item>
+            <item>
+                <button title="Settings"><icon class="no-float"><i class="fas fa-screwdriver-wrench fa-fw"></i></icon></button>
+                <button title="Logout" class="btn-logout"><icon class="no-float"><i class="fas fa-right-from-bracket fa-fw"></i></icon></button>
+            </item>
+        </div>
+    </toolbar>
+    <page>
+        <sidebar id="sidebar">
+        <div>
+            <toolbar>
+                <!-- <button title="New Tab" class="btn-add-tab"><i class="fas fa-plus fa-fw"></i></button> -->
+                <button title="Refresh" class="btn-refresh-sidebar"><i class="fas fa-rotate fa-fw"></i></button>
+            </toolbar>
+            <div>
+            <ul>
+            </ul>
+        </div>
+        </div>
+        </sidebar>
+        <slider class="hslider">
+            <div>
+                &middot;<br />&middot;<br />&middot;<br />&middot;<br />&middot;
+            </div>
+        </slider>
+        <core class="tabs">
+            <tabs>
+                <!-- <button title="New Tab" class="btn-add-tab"><i class="fas fa-plus"></i></button> -->
+                <selector>
+                    <button class="btn-select-tab"><i class="fas fa-caret-down"></i></button>
+                    <ul>
+                    </ul>
+                </selector>
+                <item id="tabs">
+                </item>
+            </tabs>
+        </core>
+    </page>
+    <statusbar>
+        <div>
+            <item>DB Query Tool v1.0.0</item>
+            <item id="pos">Pos 0</item>
+            <item id="sel-pos">Sel 0 : 0</item>
+            <item id="time"></item>
+        </div>
+    </statusbar>
+    <div style="display: none;" id="tab-template">
+        <box id="">
+            <editor id="editor" class="controls">
+                <div>
+                    <item id="text">
+                        <controls>
+                            <button title="Execute [Ctrl + Q]" class="btn-execute"><i class="fas fa-play"></i></button>
+                            <button title="Properties" class="btn-tab-settings small"><i class="fas fa-wrench"></i></button>
+                            <div class="tab-settings">
+                                <div><button><i class="fas fa-times"></i></button></div>
+                                <ul>
+                                    <li><span class="name">Setting Name</span><span class="value">Setting Value</span></li>
+                                    <li><span class="name">Setting Name</span><span class="value">Setting Value</span></li>
+                                    <li><span class="name">Setting Name</span><span class="value">Setting Value</span></li>
+                                    <li><span class="name">Setting Name</span><span class="value">Setting Value</span></li>
+                                </ul>
+                            </div>
+                        </controls>
+                        <textarea class="code"></textarea>
+                    </item>
+                </div>
+            </editor>
+            <slider class="vslider">&middot; &middot; &middot; &middot; &middot;</slider>
+            <output id="output" class="controls">
+                <loading><div><div><i class="fas fa-spinner fa-spin"></i> <span>Loading...</span> <button class="btn-cancel-request" title="Cancel"><i class="fas fa-times"></i></button></div></div></loading>
+                <controls>
+                    <button title="Grid" class="small results activated"><i class="fas fa-table-cells"></i></button>
+                    <button title="SQL Statement" class="small code"><i class="fas fa-code"></i></button>
+                    <button title="Server Output" class="small server-output"><i class="far fa-rectangle-list"></i></button>
+                    <button title="Export" class="small download"><i class="fas fa-download"></i></button>
+                    <button title="Copy" class="small copy"><i class="far fa-copy"></i></button>
+                </controls>
+                <section class="code" style="display: none;">
+                    <text class="sql-text"></text>
+                </section>
+                <section class="server-output" style="display: none;">
+                    <text class="server-output-text"></text>
+                </section>
+                <section class="results">
+                    <text class="error-msg" style="display: none;">An error occurred.</text>
+                    <results>
+                        <table cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr>
+                                    <th><spacer>&nbsp;</spacer></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+        
+                    </results>
+                    <!--
+                    <toolbar>
+                        <div>
+                            <item>
+                                <button title="First"><i class="fas fa-backward-fast"></i></button>
+                                <button title="Previous"><i class="fas fa-backward-step"></i></button>
+                                <button title="Next"><i class="fas fa-forward-step"></i></button>
+                                <button title="Last"><i class="fas fa-forward-fast"></i></button> 
+                                <button title="Refresh" class="btn-refresh"><i class="fas fa-rotate"></i></button>
+                            </item>
+                            <item><loading><i class="fas fa-spinner fa-spin"></i> <span>Loading...</span> <button><i class="fas fa-times"></i></button></loading></item>
+                        </div>
+                    </toolbar>
+                    -->
+                </section>
+            </output>
+        </box>
+    </div>
+</body>
+</html>
