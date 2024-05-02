@@ -238,7 +238,7 @@ function resetOutput() {
     }
 
     $('box.active results thead th data').mousedown(function(e) {
-        t = $(this);
+        let t = $(this);
         document.onmousemove = function onMouseMove(e) {
             $('box.active results tbody tr td:nth-child('+($(t).parent().index()+1)+') data').css('width', ($(t).width()+1) + 'px');
         };
