@@ -6,6 +6,8 @@ import hashlib
 import datetime
 import tempfile
 import hashlib
+import logging
+
 try:
     import redis
 except ModuleNotFoundError:
@@ -331,12 +333,148 @@ class RedisTokens(Tokenizer):
         return self.token_data.get("default_dbs", {})
 
 
+class DynamoDBTokens(Tokenizer):
+    def __init__(self, **kwargs):
+
+        import boto3
+        import logging
+        boto3.set_stream_logger('boto3', logging.WARNING)
+        boto3.set_stream_logger('botocore', logging.WARNING)
+        #logging.getLogger('botocore').setLevel(logging.WARNING)
+        #logging.getLogger('botocore.hooks').setLevel(logging.WARNING)
+        #logging.getLogger('botocore.retryhandler').setLevel(logging.WARNING)
+        #logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
+
+        super().__init__(**kwargs)
+
+        self.token = kwargs.get("token")
+        self.token_data = {}
+
+        self.table_name = kwargs.get("table_name")
+
+        aws_access_key = kwargs.get("aws_access_key", None)
+        aws_secret_key = kwargs.get("aws_secret_key", None)
+        region_name = kwargs.get("aws_region_name", "us-east-1")
+
+        if aws_access_key is not None and aws_secret_key is not None:
+            session = boto3.Session(aws_access_key_id=aws_access_key,aws_secret_access_key=aws_secret_key)
+        else:
+            session = boto3.Session()
+
+        self.conn = session.client('dynamodb', region_name=region_name)
+
+    def update(self, token, data=None):
+        
+        if token is None:
+            return None
+
+        if data is None:
+            try:
+                response = self.conn.get_item(TableName=self.table_name, Key={ "token": { "S": token } })
+                d = response["Item"].get("data").get("S")
+                data = json.loads(d if isinstance(d, str) else "{}")
+            except:
+                raise
+                return None
+
+
+        if data is None or not isinstance(data, dict) or data.get("type", "") != "token":
+            return None
+
+        expiration_time = datetime.datetime.now(datetime.UTC).replace(tzinfo=None) + datetime.timedelta(minutes=20)
+        data["expires"] = expiration_time.strftime('%a, %d-%b-%Y %H:%M:%S UTC')
+
+        self.token = token
+        self.token_data = data
+        self.conn.put_item(TableName=self.table_name, Item={ "token": { 'S': token}, "data": {'S': json.dumps(data) }})
+        return data
+    
+    def validate(self, token):
+
+        if token is None:
+            return False
+        
+        try:
+            response = self.conn.get_item(TableName=self.table_name, Key={ "token": { "S": token } })
+            d = response["Item"].get("data").get("S")
+            data = json.loads(d if isinstance(d, str) else "{}")
+            self.token_data = data
+            self.token = token
+        except:
+            return False
+        
+        if data.get("type", "") == "token" and data.get("expires") is not None:
+            c_ts = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+            d_ts = datetime.datetime.strptime(data.get("expires"), '%a, %d-%b-%Y %H:%M:%S UTC')
+
+            if c_ts <= d_ts:
+                return True
+
+        self.conn.delete_item(TableName=self.table_name, Key={ "token": { "S": token } })
+        return False
+    
+    def remove(self, token):
+        if token is None:
+            return False
+        
+        response = self.conn.get_item(TableName=self.table_name, Key={ "token": { "S": token } })
+        d = response["Item"].get("data").get("S")
+        data = json.loads(d if isinstance(d, str) else "{}")
+
+        if data.get("type", "") == "token":
+            self.conn.delete_item(TableName=self.table_name, Key={ "token": { "S": token } })
+            return True
+
+        return True
+
+    def prune(self):
+        #response = self.conn.scan(TableName=self.table_name)
+        #for item in response["Items"]:
+        #    data = json.loads(item.get("data").get("S"))
+        #    if data.get("type", "") == "token":
+        #        if data.get("expires") is not None:
+        #            c_ts = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+        #            d_ts = datetime.datetime.strptime(data.get("expires"), '%a, %d-%b-%Y %H:%M:%S UTC')
+
+        #            if c_ts > d_ts:
+        #                self.conn.delete_item(TableName=self.table_name, Key={ "token": item.get("token") })
+        #        else:
+        #            self.conn.delete_item(TableName=self.table_name, Key={ "token": item.get("token") })
+
+        return True
+    
+    @property
+    def cookie(self):
+        ret = None
+
+        if self.token is not None and self.token_data is not None:
+            cookie = http.cookies.SimpleCookie()
+            cookie['token'] = self.token
+            expiration_time = datetime.datetime.strptime(self.token_data.get("expires"), '%a, %d-%b-%Y %H:%M:%S UTC')
+            cookie['token']['expires'] = expiration_time.strftime('%a, %d-%b-%Y %H:%M:%S UTC')
+            cookie['token']['secure'] = True
+            ret = cookie.output()
+
+        return ret
+
+    @property
+    def connections(self):
+        return self.token_data.get("connections", {})
+    
+    @property
+    def default_databases(self):
+        return self.token_data.get("default_dbs", {})
+
+
 def get_tokenizer(connection_details, db_connections):
     if connection_details.get("type", "local") == "local":
         return LocalTokens(db_conns=db_connections, **connection_details.get("connection", {}))
     
     if connection_details.get("type", "local") == "redis":
         return RedisTokens(db_conns=db_connections, **connection_details.get("connection", {}))
+    
+    if connection_details.get("type", "local") == "dynamodb":
+        return DynamoDBTokens(db_conns=db_connections, **connection_details.get("connection", {}))
     
     return Tokenizer(db_conns=db_connections, **connection_details["connection"])
 

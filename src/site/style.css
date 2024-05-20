@@ -142,7 +142,7 @@ output toolbar item > loading { display: none; }
 output toolbar item > loading > button { display: none; }
 output toolbar item button { border: 1px solid transparent; border-radius: 3px; background-color: transparent; font-size: 0.95rem;  padding: 2px 4px; }
 
-output text { display: block; width: calc(100% - 20px); height: calc(100% - 20px); overflow: scroll; padding: 10px; white-space: pre; font-size: 0.9rem; user-select: all; font-family: monospace; }
+output text { display: block; width: calc(100% - 20px); height: calc(100% - 20px); overflow: scroll; padding: 10px; white-space: pre; font-size: 0.9rem; /* user-select: all; */ font-family: monospace; }
 output results { width: 100%; height: 100%; overflow: auto; position: relative; }
 output results table { border-spacing: 0; border-collapse: collapse; margin-left: 0; user-select: none; }
 output results thead { display: block; position: absolute; top: 0; left: 0; width: 100%; cursor: pointer; user-select: none; }

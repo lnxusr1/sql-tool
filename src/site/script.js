@@ -125,11 +125,13 @@ function updateStatusBar() {
     setTimeout(function() {
         if ($('box.active textarea.code').val() === undefined) { return; }
 
+        /*
         if ($('box.active textarea.code').val().length > 0) {
             $('.btn-execute').prop('disabled', false);
         } else {
             $('.btn-execute').prop('disabled', true);
         }
+        */
 
         if ($('box.active textarea.code').is(':focus')) {
             $('#pos').text('Pos 0');
@@ -540,7 +542,9 @@ function loadResultData(box, data, append) {
 
     }
 
-    $(box).find('.server-output-text').text(data["output"].join('\n'));
+    let output_text = data["output"].join('\n');
+    if (output_text.length <= 0) { output_text = "Request completed successfully."; }
+    $(box).find('.server-output-text').text(output_text);
     if (data["records"].length <= 0) {
         $(box).find('.server-output').trigger('click');
     }
@@ -604,6 +608,7 @@ function executeQuery() {
     let db_name = $('tab.active').attr('db-pref');
 
     let box = $('box.active');
+    let start_time = new Date().getTime();
 
     var xhr = $.ajax({
         url: api_url,
@@ -663,7 +668,9 @@ function executeQuery() {
             $(box).find('loading').hide();
         },
         complete: function() {
-            
+            let end_time = new Date().getTime();
+            let run_time = Math.round((end_time - start_time) / 10);
+            $('statusbar #time').text((run_time / 100)+' seconds')
         }
     })
 }
@@ -912,7 +919,7 @@ function loadSidebarSection(obj) {
 
                             $('.sidebar-context-menu').attr('object-type', $(this).attr('sidebar-section'));
                             $('.sidebar-context-menu').attr('object-name', $(this).find('span.object').text());
-                            table_name = "";
+                            let table_name = "";
                             if ("table" in sidebar_data) {
                                 table_name = sidebar_data["table"];
                             }
@@ -1427,6 +1434,20 @@ $(document).ready(function() {
 
         $('.sidebar-context-menu').hide();
         return false;
+    });
+
+    $('.btn-copy-code').click(function() {
+        let tgt = $(this).attr('rel');
+
+        let outData = $(tgt).text();
+        navigator.clipboard
+            .writeText(outData)
+            .then(() => {
+                //console.log("Data copied to clipboard")
+            })
+            .catch(() => {
+                alert("Copy to Clipboard failed");
+            });
     });
 
 });
