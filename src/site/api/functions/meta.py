@@ -23,7 +23,11 @@ def get_meta_response(request):
         resp.output(response)
         return True
 
-    response = connection.meta(request_data=json_data)
+    try:
+        response = connection.meta(request_data=json_data)
+    except Exception as e:
+        response = { "ok": True, "error":  str(e) }
+
     resp.output(response)
     return
 

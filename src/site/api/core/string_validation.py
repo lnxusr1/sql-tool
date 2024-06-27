@@ -9,6 +9,9 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
 def validate_username(username):
+    if username == "" or username is None:
+        return False
+    
     # Define the maximum length for the username in AD
     max_length = 20
 

@@ -93,7 +93,7 @@ class LocalAuth(Authenticator):
 
     @property
     def use_token(self):
-        return True
+        return False
 
     def validate(self, username, password):
         if not validate_username(username) or self.safe_password is None:
@@ -122,6 +122,7 @@ class LocalAuth(Authenticator):
 
         # If so, store in token data
         self.cred_data = encrypt(self.safe_password, json.dumps({ "username": self._username, "password": password }))
+
         return True
     
     @property
@@ -135,6 +136,60 @@ class LocalAuth(Authenticator):
     @property
     def default_databases(self):
         return self.default_dbs
+
+
+class ConfigAuth(Authenticator):
+    settings = None
+
+    def __init__(self, safe_password=None, db_conns=None, **kwargs):
+        super().__init__(safe_password=None, db_conns=None, **kwargs)
+
+        self.settings = kwargs
+
+        self.safe_password = safe_password
+        self.db_conns = db_conns
+        self.cred_data = None
+        self.conns = {}
+        self.default_dbs = {}
+        self._username = None
+
+    @property
+    def use_token(self):
+        return False
+
+    def validate(self, username, password):
+        if not validate_username(username) or self.safe_password is None:
+            return False
+        
+        self._username = username
+
+        #TODO: Check if credentials can successfull access database
+
+        # If so, store in token data
+        self.cred_data = encrypt(self.safe_password, json.dumps({ "username": self._username, "password": password }))
+
+        self.default_dbs = []
+        self.conns = {}
+        for item in self.db_conns:
+            self.conns[item] = list(self.db_conns.get(item).get("connection", {}).get("roles", {}).keys())
+
+        return True
+    
+    @property
+    def credentials(self):
+        return json.loads(decrypt(self.safe_password, self.cred_data))
+    
+    @property
+    def connections(self):
+        return self.conns
+    
+    @property
+    def default_databases(self):
+        ret = {}
+        for item in self.connections:
+            ret[item] = self.db_conns.get(item, {}).get("connection", {}).get("default_db")
+
+        return ret
 
 
 class LDAPAuth(Authenticator):
@@ -297,11 +352,32 @@ class LDAPAuth(Authenticator):
 
 def get_authenticator(connection_details, db_connections):
     if connection_details.get("type", "local") == "local":
-        return LocalAuth(db_conns=db_connections, **connection_details.get("connection"))
+        return LocalAuth(
+            db_conns=db_connections, 
+            safe_password=connection_details.get("options", {}).get("safe_password"), 
+            **connection_details.get("connection", {})
+        )
+    elif connection_details.get("type", "local") == "config":
+        return ConfigAuth(
+            db_conns=db_connections, 
+            safe_password=connection_details.get("options", {}).get("safe_password"), 
+            **connection_details.get("connection", {})
+        )
+
     elif connection_details.get("type", "local") == "ldap":
-        return LDAPAuth(microsoft=True, db_conns=db_connections, **connection_details.get("connection"))
+        return LDAPAuth(
+            microsoft=True, 
+            db_conns=db_connections, 
+            safe_password=connection_details.get("options", {}).get("safe_password"), 
+            **connection_details.get("connection")
+        )
     elif connection_details.get("type", "local") == "openldap":
-        return LDAPAuth(microsoft=False, db_conns=db_connections, **connection_details.get("connection"))
+        return LDAPAuth(
+            microsoft=False, 
+            db_conns=db_connections, 
+            safe_password=connection_details.get("options", {}).get("safe_password"), 
+            **connection_details.get("connection")
+        )
     
     return Authenticator()
 

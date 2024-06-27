@@ -10,11 +10,15 @@ def validate(request):
     token = request.token
 
     is_success = False
-    if cfg.sys_authenticator.get("type", "config") == "config":
-        is_success = True
 
     if token is not None and tokenizer.validate(token):
         is_success = True
+
+    if cfg.sys_authenticator.get("type", "config") == "config" and not is_success:
+        request.set_user("config")
+        from functions.login import get_login_response
+        get_login_response(request)
+        sys.exit()
 
     if not is_success:
         resp = Response()

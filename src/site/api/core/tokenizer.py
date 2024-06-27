@@ -337,13 +337,9 @@ class DynamoDBTokens(Tokenizer):
     def __init__(self, **kwargs):
 
         import boto3
-        import logging
         boto3.set_stream_logger('boto3', logging.WARNING)
         boto3.set_stream_logger('botocore', logging.WARNING)
-        #logging.getLogger('botocore').setLevel(logging.WARNING)
-        #logging.getLogger('botocore.hooks').setLevel(logging.WARNING)
-        #logging.getLogger('botocore.retryhandler').setLevel(logging.WARNING)
-        #logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
+        logging.getLogger('urllib3').setLevel(logging.WARNING)
 
         super().__init__(**kwargs)
 
@@ -418,7 +414,7 @@ class DynamoDBTokens(Tokenizer):
             return False
         
         response = self.conn.get_item(TableName=self.table_name, Key={ "token": { "S": token } })
-        d = response["Item"].get("data").get("S")
+        d = response.get("Item", {}).get("data", {}).get("S")
         data = json.loads(d if isinstance(d, str) else "{}")
 
         if data.get("type", "") == "token":

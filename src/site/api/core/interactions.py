@@ -58,3 +58,6 @@ class Request:
         
         if (self.headers["CONTENT_TYPE"]).lower() == "application/json" and len(self.raw_data) > 0:
             self.json_data = json.loads(self.raw_data)
+
+    def set_user(self, username):
+        self.json_data["username"] = username

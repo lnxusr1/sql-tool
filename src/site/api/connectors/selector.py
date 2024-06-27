@@ -40,7 +40,7 @@ def get_connection(connection_name, role=None, database=None):
         connection_info["password"] = connection_info.get("connection", {}).get("roles", {}).get(role, {}).get("password")
     else:
         
-        creds = json.loads(decrypt(cfg.sys_authenticator.get("connection", {}).get("safe_password"), tokenizer.token_data.get("credentials")))
+        creds = json.loads(decrypt(cfg.sys_authenticator.get("options", {}).get("safe_password"), tokenizer.token_data.get("credentials")))
         connection_info["user"] = creds.get("username")
         connection_info["password"] = creds.get("password")
         

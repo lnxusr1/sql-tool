@@ -892,6 +892,10 @@ function loadSidebarSection(obj) {
                 return;
             }
 
+            if (data["error"]) {
+                alert(data["error"]);
+            }
+
             if (Array.isArray(data["data"])) {
                 for (let i=0; i<data["data"].length; i++) {
                     let obj_title = (data["title"] !== undefined) ? data["title"] : data["data"][i];

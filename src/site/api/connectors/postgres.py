@@ -50,7 +50,7 @@ class Postgres(Connector):
                 self.logger.debug(str(traceback.format_exc()))
                 self.err.append("Unable to connect to database.")
                 self.connection = None
-                raise
+                return False
 
         return True
     
@@ -95,8 +95,8 @@ class Postgres(Connector):
                 raise
             
         else:
-            self.err.append("Not connected")
-            raise ConnectionError("Not connected")
+            self.err.append("Unable to establish connection")
+            raise ConnectionError("Unable to establish connection")
 
     def fetchmany(self, sql, params=None, size=None):
         if self.connection is not None:
@@ -152,8 +152,8 @@ class Postgres(Connector):
                 raise
 
         else:
-            self.err.append("Not connected")
-            raise ConnectionError("Not connected")
+            self.err.append("Unable to establish connection")
+            raise ConnectionError("Unable to establish connection")
     
     def _meta(self, category, item_name, schema_name=None, object_name=None):
         data = []
