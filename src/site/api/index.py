@@ -12,6 +12,8 @@ logging.basicConfig(
     format='%(asctime)s %(name)-12s - %(levelname)-9s - %(message)s',
     level=logging.DEBUG)
 
+logging.getLogger("psycopg.pq").setLevel(logging.INFO)
+
 # STUFF FOR CGI
 request = Request(**os.environ)
 request.set_data(sys.stdin.read(request.headers.get("CONTENT_LENGTH")))

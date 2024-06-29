@@ -36,7 +36,7 @@ def get_query_response(request):
         logging.debug(str(traceback.format_exc()))
         response["error"] = str(e)
 
-    response["columns"] = headers
+    response["columns"] = connection.columns
     response["output"] = connection.notices
     response["count"] = i if i > 0 or str(json_data.get("sql")).lower().startswith("with") or str(json_data.get("sql")).lower().startswith("select") else -1
 

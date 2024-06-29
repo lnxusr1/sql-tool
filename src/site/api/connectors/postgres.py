@@ -23,6 +23,11 @@ class Postgres(Connector):
         self.logger = logging.getLogger("connections.Postgres")
         self._notices = []
 
+        self._columns = []
+
+    @property
+    def columns(self):
+        return self._columns
 
     def _save_notice(self, diag):
         self._notices.append(f"{diag.severity} - {diag.message_primary}")
@@ -104,9 +109,6 @@ class Postgres(Connector):
             
             if size is not None:
                 cur.arraysize=size
-
-            if cur.rowcount <= 0:
-                return
             
             try:
                 headers = [{ "name": desc[0], "type": "text" } for desc in cur.description]
@@ -124,6 +126,11 @@ class Postgres(Connector):
                 headers = []
                 raise
 
+            self._columns = headers
+            
+            if cur.rowcount <= 0:
+                return
+
             try:
                 while True:
                     records = cur.fetchmany()
@@ -134,11 +141,11 @@ class Postgres(Connector):
                         record = list(record)
                         for i, item in enumerate(record):
                             if isinstance(item, datetime):
-                                headers[i]["type"] = "date"
+                                self._columns[i]["type"] = "date"
                             elif isinstance(item, bool):
-                                headers[i]["type"] = "text"
+                                self._columns[i]["type"] = "text"
                             elif isinstance(item, float) or isinstance(item, int) or isinstance(item, Decimal):
-                                headers[i]["type"] = "number"
+                                self._columns[i]["type"] = "number"
                             
                             record[i] = str(item)
             
