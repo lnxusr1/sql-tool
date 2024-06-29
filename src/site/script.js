@@ -568,7 +568,7 @@ function loadResultData(box, data, append) {
     let output_text = data["output"].join('\n');
     if (output_text.length <= 0) { output_text = "Request completed successfully."; }
     $(box).find('.server-output-text').text(output_text);
-    if (data["records"].length <= 0) {
+    if (data["count"] < 0) {
         $(box).find('.server-output').trigger('click');
     }
 
@@ -668,7 +668,7 @@ function executeQuery() {
             $(box).find('loading button').off();
             $(box).find('loading').hide();
 
-            record_count = $(box).find('table tbody').find('tr').length;
+            record_count = data["count"];
 
             activeArea = "editor";
             $(box).find('editor .code').focus();
@@ -697,7 +697,7 @@ function executeQuery() {
             let end_time = new Date().getTime();
             let run_time = Math.round((end_time - start_time) / 10);
 
-            if (record_count > 0) {
+            if (record_count >= 0) {
                 $('statusbar #time').text((record_count)+' records - '+(run_time / 100)+' seconds')
             } else {
                 $('statusbar #time').text((run_time / 100)+' seconds')
