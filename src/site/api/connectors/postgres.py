@@ -400,13 +400,13 @@ class Postgres(Connector):
             return "select viewname from pg_catalog.pg_views where schemaname = %s order by viewname"
         
         if category == "view":
-            return "select CONCAT('CREATE OR REPLACE ', schemaname, '.', viewname, ' AS \n', definition) as definition from pg_catalog.pg_views where schemaname = %s and viewname = %s;"
+            return "select CONCAT('CREATE OR REPLACE VIEW ', schemaname, '.', viewname, ' AS \n', definition) as definition from pg_catalog.pg_views where schemaname = %s and viewname = %s;"
         
         if category == "mat_views":
             return "select matviewname from pg_catalog.pg_matviews where schemaname = %s order by matviewname"
         
         if category == "mat_view":
-            return "select CONCAT('CREATE OR REPLACE ', schemaname, '.', matviewname, ' AS \n', definition) as definition from pg_catalog.pg_matviews where schemaname = %s and matviewname = %s;"
+            return "select CONCAT('CREATE MATERIALIZED VIEW ', schemaname, '.', matviewname, ' AS \n', definition) as definition from pg_catalog.pg_matviews where schemaname = %s and matviewname = %s;"
         
         if category == "roles":
             return "select rolname from pg_catalog.pg_roles order by rolname"
