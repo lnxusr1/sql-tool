@@ -326,7 +326,7 @@ class LDAPAuth(Authenticator):
                 for role in roles:
                     auth_groups = [str(x).lower() for x in roles.get(role, {}).get("auth_groups", [])]
                     member_groups = [str(x).lower() for x in self.groups]
-                    default_db = roles.get(role, {}).get("default_db")
+                    # default_db = roles.get(role, {}).get("default_db")
                     for mg in member_groups:
                         if mg in auth_groups:
                             conns.append({conn: role})

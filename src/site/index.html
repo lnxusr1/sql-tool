@@ -20,14 +20,15 @@
 <body>
     <div class="sidebar-context-menu">
         <ul>
-            <li><a id="btn-generate-ddl" href="#">Generate DDL...</a></li>
+            <li><a id="btn-refresh-item" href="#">Refresh</a></li>
+            <li><a class="optional" id="btn-generate-ddl" href="#">Generate DDL...</a></li>
         </ul>
     </div>
     <overlay class="chooser" id="ddl-data">
         <div>
             <div class="message-box">
                 <div class="title">
-                    <span>Select Connection</span>
+                    <span>Object Details</span>
                     <button class="btn-chooser-close" overlay-target="#ddl-data"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="message">
@@ -37,7 +38,7 @@
                 </div>
                 <div class="buttons">
                     <ul>
-                        <li><button class="btn-copy-code" rel="#ddl-statement">Copy</button></li>
+                        <li><button class="btn-copy-code" rel="#ddl-statement"><i class="far fa-copy"></i> Copy</button></li>
                         <li><button class="btn-chooser-close" overlay-target="#ddl-data">Cancel</button></li>
                     </ul>
                 </div>

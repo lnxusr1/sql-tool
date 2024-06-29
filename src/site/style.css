@@ -174,3 +174,5 @@ body > overlay, body > page, body > statusbar, body > toolbar { display: none; }
 .as-code { white-space: pre; font-family: monospace; font-size: 0.9rem; user-select: all; }
 overlay .message-box { max-width: 90%; max-height: 90%; }
 overlay .message { overflow: auto; }
+
+.hide-options .optional { display: none; }

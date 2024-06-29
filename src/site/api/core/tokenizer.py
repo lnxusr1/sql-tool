@@ -350,10 +350,13 @@ class DynamoDBTokens(Tokenizer):
 
         aws_access_key = kwargs.get("aws_access_key", None)
         aws_secret_key = kwargs.get("aws_secret_key", None)
+        profile_name = kwargs.get("profile_name", None)
         region_name = kwargs.get("aws_region_name", "us-east-1")
 
         if aws_access_key is not None and aws_secret_key is not None:
             session = boto3.Session(aws_access_key_id=aws_access_key,aws_secret_access_key=aws_secret_key)
+        elif profile_name is not None:
+            session = boto3.Session(profile_name=profile_name)
         else:
             session = boto3.Session()
 

@@ -5,6 +5,15 @@ var tabIncrement = 1;
 var escapeKey = false;
 var auto_timer = null;
 
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    .replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0, 
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 function addSidebarIcon(obj, iconClass, weight) {
     if (weight === undefined) { weight = "fas"; }
 
@@ -38,6 +47,20 @@ function fixIconClasses() {
     addSidebarIcon($('sidebar > div > div > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li'), 'fa-folder', 'far');
 
     $('sidebar > div > div > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul').children('li').each(function (i, o) { 
+        if (i % 3 == 0) { addSidebarIcon($(o).children('ul').children('li'), 'fa-columns'); }
+        if (i % 3 != 0) { addSidebarIcon($(o).children('ul').children('li'), 'fa-file-lines', 'far'); }
+    });
+
+    addSidebarIcon($('sidebar > div > div > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li'), 'fa-folder', 'far');
+
+    $('sidebar > div > div > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul').children('li').each(function (i, o) { 
+        if (i % 3 == 0) { addSidebarIcon($(o).children('ul').children('li'), 'fa-columns'); }
+        if (i % 3 != 0) { addSidebarIcon($(o).children('ul').children('li'), 'fa-file-lines', 'far'); }
+    });
+
+    addSidebarIcon($('sidebar > div > div > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li'), 'fa-folder', 'far');
+
+    $('sidebar > div > div > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul > li > ul').children('li').each(function (i, o) { 
         if (i % 3 == 0) { addSidebarIcon($(o).children('ul').children('li'), 'fa-columns'); }
         if (i % 3 != 0) { addSidebarIcon($(o).children('ul').children('li'), 'fa-file-lines', 'far'); }
     });
@@ -521,7 +544,7 @@ function loadResultData(box, data, append) {
     }
 
     for (let r=0; r<data["records"].length; r++) {
-        let cnt = $('box.active table tbody').find('tr').length;
+        let cnt = $(box).find('table tbody').find('tr').length;
         let tr = $("<tr></tr>");
         let d = $('<data></data>');
         d.text(cnt+1);
@@ -608,6 +631,7 @@ function executeQuery() {
     let db_name = $('tab.active').attr('db-pref');
 
     let box = $('box.active');
+    let record_count = 0;
     let start_time = new Date().getTime();
 
     var xhr = $.ajax({
@@ -644,6 +668,8 @@ function executeQuery() {
             $(box).find('loading button').off();
             $(box).find('loading').hide();
 
+            record_count = $(box).find('table tbody').find('tr').length;
+
             activeArea = "editor";
             $(box).find('editor .code').focus();
         },
@@ -670,7 +696,12 @@ function executeQuery() {
         complete: function() {
             let end_time = new Date().getTime();
             let run_time = Math.round((end_time - start_time) / 10);
-            $('statusbar #time').text((run_time / 100)+' seconds')
+
+            if (record_count > 0) {
+                $('statusbar #time').text((record_count)+' records - '+(run_time / 100)+' seconds')
+            } else {
+                $('statusbar #time').text((run_time / 100)+' seconds')
+            }
         }
     })
 }
@@ -824,7 +855,9 @@ function getSidebarDetails(obj, data) {
         if ($(this_obj).prop('tagName').toLowerCase() == 'li') {
             let section = $(this_obj).children('button').attr('sidebar-section');
             let obj_nm = $(this_obj).children('button').children('span.object').text();
-            data[section] = obj_nm;
+            if (!data[section]) {
+                data[section] = obj_nm;
+            }
         }
 
         this_obj = $(this_obj).parent();
@@ -835,6 +868,7 @@ function getSidebarDetails(obj, data) {
 
 function loadSidebarSection(obj) {
 
+    $('.sidebar-context-menu').hide();
     let section = $(obj).children('button').attr('sidebar-section');
     let request = { command: "meta", "request_type": section };
 
@@ -901,6 +935,7 @@ function loadSidebarSection(obj) {
                     let obj_title = (data["title"] !== undefined) ? data["title"] : data["data"][i];
 
                     let entry = $('<li></li>');
+                    entry.prop('id', uuidv4());
                     entry.html('<button><i class="caret fas fa-fw fa-caret-right"></i><i class="icon fas fa-fw"></i><span class="object"></span><span class="extra"></span></button><ul></ul>');
                     $(entry).children('button').attr('sidebar-section', data["type"]);
 
@@ -918,27 +953,31 @@ function loadSidebarSection(obj) {
                     entry.find('button').on('contextmenu', function(event) { 
                         $('.sidebar-context-menu').hide();
 
-                        if (["view", "mat_view", "index", "policy", "trigger", "constraint", "procedure", "function"].includes($(this).attr('sidebar-section'))) {
-                            let sidebar_data = getSidebarDetails($(this).parent());
+                        let sidebar_data = getSidebarDetails($(this).parent());
 
-                            $('.sidebar-context-menu').attr('object-type', $(this).attr('sidebar-section'));
-                            $('.sidebar-context-menu').attr('object-name', $(this).find('span.object').text());
-                            let table_name = "";
-                            if ("table" in sidebar_data) {
-                                table_name = sidebar_data["table"];
+                        $('.sidebar-context-menu').attr('object-id', $(this).parent().prop('id'));
+                        $('.sidebar-context-menu').attr('object-type', $(this).attr('sidebar-section'));
+                        $('.sidebar-context-menu').attr('object-name', $(this).find('span.object').text());
+                        let table_name = "";
+                        if ("table" in sidebar_data) {
+                            table_name = sidebar_data["table"];
+                        }
+                        $('.sidebar-context-menu').attr('object-parent', table_name);
+                        $('.sidebar-context-menu').attr('object-schema', sidebar_data["schema"]);
+                        $('.sidebar-context-menu').attr('object-server', sidebar_data["server"]);
+                        $('.sidebar-context-menu').attr('object-db', sidebar_data["database"]);
+
+                        $('.sidebar-context-menu').css(
+                            {
+                                display: "block",
+                                top: event.pageY + "px",
+                                left: event.pageX + "px"
                             }
-                            $('.sidebar-context-menu').attr('object-parent', table_name);
-                            $('.sidebar-context-menu').attr('object-schema', sidebar_data["schema"]);
-                            $('.sidebar-context-menu').attr('object-server', sidebar_data["server"]);
-                            $('.sidebar-context-menu').attr('object-db', sidebar_data["database"]);
+                        );
+                        $('.sidebar-context-menu').addClass('hide-options');
 
-                            $('.sidebar-context-menu').css(
-                                {
-                                    display: "block",
-                                    top: event.pageY + "px",
-                                    left: event.pageX + "px"
-                                }
-                            );
+                        if (["view", "mat_view", "index", "policy", "trigger", "sequence", "constraint", "procedure", "function"].includes($(this).attr('sidebar-section'))) {
+                            $('.sidebar-context-menu').removeClass('hide-options');
                         }
                     });
 
@@ -982,12 +1021,46 @@ function loadConnectionList(connections) {
         let x = 1;
         for (let i=0; i<connections_list.length; i++) {
             let entry = $('<li></li>');
+            entry.prop('id', uuidv4());
             entry.html('<button sidebar-section="server"><i class="caret fas fa-fw fa-caret-right"></i><i class="icon fas fa-fw"></i><span class="object"></span><span class="extra"></span></button><ul></ul>');
             entry.find('span.object').text(connections_list[i]);
             entry.find('i').first().click(function() {
                 loadSidebarSection($(this).parent().parent());
             });
+            entry.find('button').click(function() { $('.sidebar-context-menu').hide(); });
             entry.appendTo($('sidebar > div > div > ul'));
+
+            entry.find('button').on('contextmenu', function(event) { 
+                $('.sidebar-context-menu').hide();
+
+                let sidebar_data = getSidebarDetails($(this).parent());
+
+                $('.sidebar-context-menu').attr('object-type', $(this).attr('sidebar-section'));
+                $('.sidebar-context-menu').attr('object-name', $(this).find('span.object').text());
+                let table_name = "";
+                if ("table" in sidebar_data) {
+                    table_name = sidebar_data["table"];
+                }
+
+                $('.sidebar-context-menu').attr('object-id', $(this).parent().prop('id'));
+                $('.sidebar-context-menu').attr('object-parent', table_name);
+                $('.sidebar-context-menu').attr('object-schema', sidebar_data["schema"]);
+                $('.sidebar-context-menu').attr('object-server', sidebar_data["server"]);
+                $('.sidebar-context-menu').attr('object-db', sidebar_data["database"]);
+
+                $('.sidebar-context-menu').css(
+                    {
+                        display: "block",
+                        top: event.pageY + "px",
+                        left: event.pageX + "px"
+                    }
+                );
+                $('.sidebar-context-menu').addClass('hide-options');
+
+                if (["view", "mat_view", "index", "policy", "trigger", "sequence", "constraint", "procedure", "function"].includes($(this).attr('sidebar-section'))) {
+                    $('.sidebar-context-menu').removeClass('hide-options');
+                }
+            });
 
             let chooser = $('<li></li>');
             chooser.html('<span></span><ul></ul>');
@@ -1402,6 +1475,18 @@ $(document).ready(function() {
 
     checkLogin();
 
+    $('#btn-refresh-item').click(function() {
+        $('.sidebar-context-menu').hide();
+        let object_id = $('.sidebar-context-menu').attr('object-id');
+        if (object_id) {
+            $('#' + object_id).removeClass('section-loaded');
+            $('#' + object_id + ' ul').find('li').remove();
+            $('#' + object_id + ' button').find('i').removeClass('fa-caret-down');
+            $('#' + object_id + ' button').find('i').removeClass('fa-caret-up');
+            $('#' + object_id + ' button').find('i').first().trigger('click');
+        }
+    });
+
     $('#btn-generate-ddl').click(function() {
         
         let obj_type = $('.sidebar-context-menu').attr('object-type');
@@ -1432,6 +1517,7 @@ $(document).ready(function() {
                 }
 
                 $('#ddl-statement').text(data["ddl"]);
+                $('#ddl-data .message').removeClass('active');
                 $('#ddl-data').show();
             }
         });
@@ -1442,6 +1528,7 @@ $(document).ready(function() {
 
     $('.btn-copy-code').click(function() {
         let tgt = $(this).attr('rel');
+        $('#ddl-data .message').addClass('active');
 
         let outData = $(tgt).text();
         navigator.clipboard
@@ -1452,6 +1539,9 @@ $(document).ready(function() {
             .catch(() => {
                 alert("Copy to Clipboard failed");
             });
+
+        setTimeout(function() { $('#ddl-data .message').removeClass('active'); }, 150);
+
     });
 
 });

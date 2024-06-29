@@ -110,6 +110,12 @@ class Postgres(Connector):
             
             try:
                 headers = [{ "name": desc[0], "type": "text" } for desc in cur.description]
+            except TypeError:
+                self.logger.error(str(sys.exc_info()[0]))
+                self.logger.debug(str(sql))
+                self.logger.debug(str(traceback.format_exc()))
+                self.err.append("Unable to parse columns.")
+                headers = []
             except:
                 self.logger.error(str(sys.exc_info()[0]))
                 self.logger.debug(str(sql))
@@ -137,6 +143,13 @@ class Postgres(Connector):
                             record[i] = str(item)
             
                         yield headers, record
+            except psycopg.ProgrammingError as e:
+                if str(e) == "the last operation didn't produce a result":
+                    pass
+                else:
+                    logging.debug(str(sys.exc_info()[0]))
+                    logging.debug(str(traceback.format_exc()))
+                    return
             except:
                 self.logger.error(str(sys.exc_info()[0]))
                 self.logger.debug(str(traceback.format_exc()))
@@ -226,12 +239,20 @@ class Postgres(Connector):
                 "data": ["Columns", "Constraints", "Indexes", "Policies", "Partitions", "Triggers"]
             }
         
-        elif category in ["view", "mat_view", "partition"]:
+        elif category in ["view", "mat_view"]:
             sub_cat = f"fa_{category}"
             return {
                 "ok": True,
                 "type": sub_cat,
                 "data": ["Columns"]
+            }
+        
+        elif category in ["partition"]:
+            sub_cat = f"fa_{category}"
+            return {
+                "ok": True,
+                "type": sub_cat,
+                "data": ["Columns", "Constraints", "Indexes", "Policies", "Partitions", "Triggers"]
             }
         
         elif category in ["fa_table", "fa_view", "fa_mat_view"]:
@@ -242,6 +263,14 @@ class Postgres(Connector):
                 item_name = "policy"
             schema_name = request_data.get("schema")
             object_name = request_data.get(category[3:], "").lower()
+
+        elif category in ["fa_partition"]:
+            schema_name = request_data.get("schema")
+            object_name = request_data.get("partition")
+            sub_cat = request_data.get("fa_partition", "").lower()
+            if sub_cat == "subpartitions":
+                sub_cat = "partitions"
+                
 
         if sub_cat is None:
             return { "ok": True }
@@ -256,7 +285,7 @@ class Postgres(Connector):
         object_type = request_data.get("type", "").lower().strip()
         ddl_statement = ""
 
-        if object_type in ["view", "mat_view", "index", "policy", "trigger", "constraint", "procedure", "function"]:
+        if object_type in ["view", "mat_view", "index", "policy", "trigger", "constraint", "sequence", "procedure", "function"]:
             schema_name = request_data.get("schema")
             object_name = request_data.get("name")
             object_parent = request_data.get("parent")
@@ -364,13 +393,13 @@ class Postgres(Connector):
             return "select viewname from pg_catalog.pg_views where schemaname = %s order by viewname"
         
         if category == "view":
-            return "select definition from pg_catalog.pg_views where schemaname = %s and viewname = %s;"
+            return "select CONCAT('CREATE OR REPLACE ', schemaname, '.', viewname, ' AS \n', definition) as definition from pg_catalog.pg_views where schemaname = %s and viewname = %s;"
         
         if category == "mat_views":
             return "select matviewname from pg_catalog.pg_matviews where schemaname = %s order by matviewname"
         
         if category == "mat_view":
-            return "select definition from pg_catalog.pg_matviews where schemaname = %s and matviewname = %s;"
+            return "select CONCAT('CREATE OR REPLACE ', schemaname, '.', matviewname, ' AS \n', definition) as definition from pg_catalog.pg_matviews where schemaname = %s and matviewname = %s;"
         
         if category == "roles":
             return "select rolname from pg_catalog.pg_roles order by rolname"
@@ -385,6 +414,29 @@ class Postgres(Connector):
                 ]
             )
         
+        if category == "sequence":
+            return " ".join(
+                [
+                    "select CONCAT('CREATE SEQUENCE IF NOT EXISTS ', schemaname, '.', sequencename, ",
+                    "'\n INCREMENT BY ', increment_by, '\n MIN VALUE ', min_value, '\n MAX VALUE ', max_value, ",
+                    "'\n START WITH ', start_value, '\n CACHE ', cache_size, ",
+                    "case when not cycle then '\n NO CYCLE' else '' end, ",
+                    "case when owner_table is not null and owner_column is not null then CONCAT('\n OWNED BY ',owner_schema,'.',owner_table,'.',owner_column) else '' end,"
+                    "';') as definition ",
+                    "from pg_catalog.pg_sequences ",
+                    "left join (",
+                    "select seq.relnamespace::regnamespace::text as seq_schema, seq.relname as seq_name,",
+                    "tab.relnamespace::regnamespace::text as owner_schema, ",
+                    "tab.relname as owner_table, attr.attname as owner_column",
+                    "from pg_class as seq",
+                    "join pg_depend as dep on (seq.relfilenode = dep.objid)",
+                    "join pg_class as tab on (dep.refobjid = tab.relfilenode)",
+                    "join pg_attribute as attr on (attr.attnum = dep.refobjsubid and attr.attrelid = dep.refobjid)",
+                    ") o on pg_sequences.schemaname = seq_schema and pg_sequences.sequencename = seq_name",
+                    "where schemaname = %s and sequencename = %s"
+                ]
+            )
+
         if category == "partitions":
             return " ".join(
                 [

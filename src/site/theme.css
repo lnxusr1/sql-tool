@@ -42,6 +42,7 @@ overlay#login .card-left { background: var(--main-bg); }
 overlay.chooser { background: var(--overlay-transparent-bg); }
 overlay.chooser .message-box .title { background: var(--toolbar-bg); border-color: var(--toolbar-border-color); }
 overlay.chooser .message-box .message { background: var(--editor-bg); }
+overlay.chooser .message-box .active { background: var(--main-bg); }
 overlay.chooser .message-box .buttons { background: var(--toolbar-bg); border-color: var(--toolbar-border-color); }
 
 toolbar { background: var(--toolbar-bg); border-color: var(--toolbar-border-color); }

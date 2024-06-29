@@ -3,6 +3,9 @@
 from core.tokenizer import tokenizer
 from core.interactions import Response
 from connectors.selector import get_connection
+import sys
+import traceback
+import logging
 
 
 def get_query_response(request):
@@ -29,8 +32,9 @@ def get_query_response(request):
             response["records"].append(row)
             i += 1
     except Exception as e:
+        logging.debug(str(sys.exc_info()[0]))
+        logging.debug(str(traceback.format_exc()))
         response["error"] = str(e)
-        pass
 
     response["columns"] = headers
     response["output"] = connection.notices
