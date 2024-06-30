@@ -176,3 +176,4 @@ overlay .message-box { max-width: 90%; max-height: 90%; }
 overlay .message { overflow: auto; }
 
 .hide-options .optional { display: none; }
+.hide-perms .perms { display: none; }

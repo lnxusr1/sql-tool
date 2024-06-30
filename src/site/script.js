@@ -475,10 +475,12 @@ function activateTab(el_id) {
         $('box.active textarea.code').keydown(function(e) { 
             if (!(escapeKey) && (e.keyCode == 9)) {
                 e.preventDefault();
-                curPos = $('box.active textarea.code')[0].selectionStart; 
+
+                let curPos = $('box.active textarea.code')[0].selectionStart; 
                 let x = $('box.active textarea.code').val();
                 let text_to_insert="    ";
-                curEnd = $('box.active textarea.code')[0].selectionEnd
+                let curEnd = $('box.active textarea.code')[0].selectionEnd
+
                 $('box.active textarea.code').val(x.slice(0,curPos)+text_to_insert+x.slice(curPos));
                 $('box.active textarea.code')[0].selectionEnd = curEnd + text_to_insert.length;
             }
@@ -974,11 +976,17 @@ function loadSidebarSection(obj) {
                                 left: event.pageX + "px"
                             }
                         );
-                        $('.sidebar-context-menu').addClass('hide-options');
 
+                        $('.sidebar-context-menu').addClass('hide-options');
                         if (["view", "mat_view", "index", "policy", "trigger", "sequence", "constraint", "procedure", "function"].includes($(this).attr('sidebar-section'))) {
                             $('.sidebar-context-menu').removeClass('hide-options');
                         }
+
+                        $('.sidebar-context-menu').addClass('hide-perms');
+                        if (["schema", "table", "view", "mat_view", "sequence", "procedure", "function", "partition"].includes($(this).attr('sidebar-section'))) {
+                            $('.sidebar-context-menu').removeClass('hide-perms');
+                        }
+        
                     });
 
                     entry.appendTo($(obj).children('ul'));
@@ -1055,10 +1063,15 @@ function loadConnectionList(connections) {
                         left: event.pageX + "px"
                     }
                 );
-                $('.sidebar-context-menu').addClass('hide-options');
 
+                $('.sidebar-context-menu').addClass('hide-options');
                 if (["view", "mat_view", "index", "policy", "trigger", "sequence", "constraint", "procedure", "function"].includes($(this).attr('sidebar-section'))) {
                     $('.sidebar-context-menu').removeClass('hide-options');
+                }
+
+                $('.sidebar-context-menu').addClass('hide-perms');
+                if (["schema", "table", "view", "mat_view", "sequence", "procedure", "function", "partition"].includes($(this).attr('sidebar-section'))) {
+                    $('.sidebar-context-menu').removeClass('hide-perms');
                 }
             });
 

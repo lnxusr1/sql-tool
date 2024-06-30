@@ -37,6 +37,14 @@ class Connector:
     def notices(self):
         return []
 
+    @property
+    def columns(self):
+        return []
+    
+    @property
+    def grants(self):
+        return ""
+    
     def meta(self, **kwargs):
         self.err.append("Not implemented.")
         return None

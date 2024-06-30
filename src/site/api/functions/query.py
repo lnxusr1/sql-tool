@@ -24,8 +24,15 @@ def get_query_response(request):
     headers = []
     i = 0
 
+    sql = json_data.get("sql")
+    params = None
+
+    if json_data.get("grants", False):
+        sql = connection.grants
+        params = [json_data.get("object_type"), json_data.get("schema"), json_data.get("object")]
+
     try:
-        for columns, row in connection.fetchmany(json_data.get("sql")):
+        for columns, row in connection.fetchmany(sql, params):
             if i == 0:
                 headers = columns
 
