@@ -1,5 +1,7 @@
+import os
 import datetime
 import http.cookies
+import logging
 
 from core.authentication import authenticator
 from core.tokenizer import tokenizer, generate_session_token
@@ -9,9 +11,12 @@ from core.interactions import Response
 def login(username, password):
 
     if not authenticator.validate(username, password):
+        logging.getLogger("AUTH").info(f"{os.environ['IP_ADDR']} - {username} - AUTH_FAIL")
         return None, None
 
     token = generate_session_token()
+    logging.getLogger("AUTH").info(f"{os.environ['IP_ADDR']} - {username} - AUTH_SUCCESS")
+    logging.getLogger("AUTH").debug(f"{token}")
 
     data = {
         "type": "token",
@@ -49,6 +54,11 @@ def get_login_response(request):
     if token is not None and data is not None:
         is_success = True
         cookie = tokenizer.cookie
+
+    if is_success:
+        logging.getLogger("AUTH").info(f"{os.environ['IP_ADDR']} - {user_name} - LOGIN_SUCCESS")
+    else:
+        logging.getLogger("AUTH").info(f"{os.environ['IP_ADDR']} - {user_name} - LOGIN_FAIL")
 
     if cookie is not None:
         resp.add_header(cookie)

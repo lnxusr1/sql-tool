@@ -7,10 +7,12 @@ import logging
 from functions import process_request
 from core.interactions import Request
 
+os.environ["IP_ADDR"] = os.environ["REMOTE_ADDR"]
+
 logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S %z',
-    format='%(asctime)s %(name)-12s - %(levelname)-9s - %(message)s',
-    level=logging.DEBUG)
+    format='%(name)s - %(levelname)s - %(message)s', #%(asctime)s 
+    level=logging.INFO)
 
 logging.getLogger("psycopg.pq").setLevel(logging.INFO)
 

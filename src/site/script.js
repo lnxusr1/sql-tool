@@ -1162,7 +1162,7 @@ function doLogout() {
 function updateTimer() {
     auto_timer = setTimeout(function() {
         checkLogin();
-    }, 60000);
+    }, 300000);
 }
 
 function checkLogin() {

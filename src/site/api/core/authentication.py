@@ -1,39 +1,21 @@
 import os
+import sys
+import traceback
 import json
 import http.cookies
 import secrets
 import hashlib
+import logging
+
 try:
     import ldap3
 except ModuleNotFoundError:
+    logging.debug("Module 'ldap3' not installed.")
     pass
 
 from core.string_validation import validate_username, encrypt, decrypt
 from core.config import settings as cfg
 from connectors.selector import get_connector
-
-def generate_session_token():
-    # Generate a secure random byte string
-    random_bytes = secrets.token_bytes(32)
-
-    # Use a cryptographic hash function (SHA-256) to create a fixed-size hash
-    session_token = hashlib.sha256(random_bytes).hexdigest()
-
-    return session_token
-
-
-def get_token(generate=False):
-    cookie_string = os.environ.get('HTTP_COOKIE', '')
-    cookies = http.cookies.SimpleCookie(cookie_string)
-    
-    token = None
-    if "token" in cookies:
-        token = cookies["token"].value
-
-    if token is None and generate:
-        token = generate_session_token()
-
-    return token
 
 
 class Authenticator:
@@ -90,6 +72,8 @@ class LocalAuth(Authenticator):
         self.conns = {}
         self.default_dbs = {}
         self._username = None
+        self.logger = logging.getLogger("authenticator.Local")
+        self.logger.debug("Authenticator enabled")
 
     @property
     def use_token(self):
@@ -152,6 +136,8 @@ class ConfigAuth(Authenticator):
         self.conns = {}
         self.default_dbs = {}
         self._username = None
+        self.logger = logging.getLogger("authenticator.Config")
+        self.logger.debug("Authenticator enabled")
 
     @property
     def use_token(self):
@@ -214,6 +200,15 @@ class LDAPAuth(Authenticator):
         self.conn = None
         self.group_names = None
 
+        self.logger = logging.getLogger("authenticator.LDAP")
+        self.logger.debug("Authenticator enabled.")
+        self.logger.debug(f"[LDAP {self.ldap_server}] Microsoft:     {str(self.microsoft)}")
+        self.logger.debug(f"[LDAP {self.ldap_server}] Login_is_role: {str(self.login_is_role)}")
+        self.logger.debug(f"[LDAP {self.ldap_server}] Base DN:       {str(self.ldap_base_dn)}")
+        self.logger.debug(f"[LDAP {self.ldap_server}] User Filter:   {str(self.user_search_filter)}")
+        self.logger.debug(f"[LDAP {self.ldap_server}] User Pattern:  {str(self.user_pattern)}")
+        self.logger.debug(f"[LDAP {self.ldap_server}] Group Filter:  {str(self.user_group_search_filter)}")
+
     @property
     def use_token(self):
         return False
@@ -223,6 +218,8 @@ class LDAPAuth(Authenticator):
             if self.conn is not None:
                 self.conn.unbind()
         except:
+            self.logger.error(f"[LDAP {self.ldap_server}] Unbind error, skipping")
+            self.logger.debug(f"[LDAP {self.ldap_server}] {str(sys.exc_info()[0])}")
             return False
         
         return True
@@ -258,6 +255,8 @@ class LDAPAuth(Authenticator):
             return group_names
 
         except Exception:
+            self.logger.error(f"[LDAP {self.ldap_server}] Group search failed")
+            self.logger.debug(f"[LDAP {self.ldap_server}] {str(sys.exc_info()[0])}")
             pass
         
         return []
@@ -279,6 +278,8 @@ class LDAPAuth(Authenticator):
                 return [entry.cn.value for entry in self.conn.entries]
 
         except Exception:
+            self.logger.error(f"[LDAP {self.ldap_server}] Group search failed")
+            self.logger.debug(f"[LDAP {self.ldap_server}] {str(sys.exc_info()[0])}")
             pass
         
         return []
@@ -306,6 +307,8 @@ class LDAPAuth(Authenticator):
                     self.group_names = self._get_groups_openldap()
 
         except Exception:
+            self.logger.error(f"[LDAP {self.ldap_server}] Validate failed")
+            self.logger.debug(f"[LDAP {self.ldap_server}] {str(sys.exc_info()[0])}")
             return False
 
         return True

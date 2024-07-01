@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
+import os
 import sys
+import logging
 
 from core.config import settings as cfg
 from core.interactions import Response
@@ -27,6 +29,7 @@ def validate(request):
     return is_success
 
 def do_auth(request):
+    logging.getLogger("AUTH").info(f"{os.environ.get('IP_ADDR')} - {tokenizer.username} - AUTH_CHECK")
     resp = Response()
     resp.output({ 
         "ok": True,
@@ -40,6 +43,8 @@ def do_auth(request):
 
 def do_ping(request):
     tokenizer.update(request.token)
+    logging.getLogger("AUTH").info(f"{os.environ.get('IP_ADDR')} - {tokenizer.username} - AUTH_PING")
+
     resp = Response()
 
     cookie = tokenizer.cookie

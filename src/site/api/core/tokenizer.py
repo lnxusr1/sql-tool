@@ -16,10 +16,7 @@ except ModuleNotFoundError:
 from core.config import settings as cfg
 
 def generate_session_token():
-    # Generate a secure random byte string
     random_bytes = secrets.token_bytes(32)
-
-    # Use a cryptographic hash function (SHA-256) to create a fixed-size hash
     session_token = hashlib.sha256(random_bytes).hexdigest()
 
     return session_token
@@ -32,6 +29,7 @@ class Tokenizer:
         self.settings = kwargs
         self.db_conns = kwargs.get("db_conns", {})
         self.token = kwargs.get("token")
+        self.token_data = {}
 
     def update(self, token, data=None):
         self.token = token
@@ -51,6 +49,10 @@ class Tokenizer:
     @property
     def cookie(self):
         return None
+    
+    @property
+    def username(self):
+        return self.token_data.get("username")
     
     @property
     def connections(self):
@@ -76,6 +78,9 @@ class LocalTokens(Tokenizer):
 
         if not os.path.exists(self.local_path):
             os.makedirs(self.local_path, exist_ok=True)
+
+        self.logger = logging.getLogger("tokenizer.Local")
+        self.logger.debug("Tokenizer initiated")
 
     def _token_path(self, token):
         if token is None:
@@ -149,6 +154,7 @@ class LocalTokens(Tokenizer):
             data = self._get_token_data(token)
             self.token_data = data
             self.token = token
+            self.logger.debug(f"[TOKEN] User: {self.token_data.get('username')}")
 
         except:
             return False
@@ -231,6 +237,9 @@ class RedisTokens(Tokenizer):
             decode_responses=True
         )
 
+        self.logger = logging.getLogger("tokenizer.Redis")
+        self.logger.debug("Tokenizer initiated")
+
     def update(self, token, data=None):
         if token is None:
             return None
@@ -262,6 +271,7 @@ class RedisTokens(Tokenizer):
             data = json.loads(d if isinstance(d, str) else "{}")
             self.token_data = data
             self.token = token
+            self.logger.debug(f"[TOKEN] User: {self.token_data.get('username')}")
 
         except:
             return False
@@ -362,6 +372,9 @@ class DynamoDBTokens(Tokenizer):
 
         self.conn = session.client('dynamodb', region_name=region_name)
 
+        self.logger = logging.getLogger("tokenizer.DynamoDB")
+        self.logger.debug("Tokenizer initiated")
+
     def update(self, token, data=None):
         
         if token is None:
@@ -374,8 +387,6 @@ class DynamoDBTokens(Tokenizer):
                 data = json.loads(d if isinstance(d, str) else "{}")
             except:
                 raise
-                return None
-
 
         if data is None or not isinstance(data, dict) or data.get("type", "") != "token":
             return None
@@ -399,6 +410,7 @@ class DynamoDBTokens(Tokenizer):
             data = json.loads(d if isinstance(d, str) else "{}")
             self.token_data = data
             self.token = token
+            self.logger(f"[TOKEN] User: {self.token_data.get('username')}")
         except:
             return False
         

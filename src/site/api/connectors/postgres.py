@@ -24,6 +24,7 @@ class Postgres(Connector):
         self._notices = []
 
         self._columns = []
+        self.logger.debug(f"[{self.host}] Postgres connector initialized")
 
     @property
     def columns(self):
@@ -51,7 +52,7 @@ class Postgres(Connector):
                 self.connection.add_notice_handler(self._save_notice)
 
             except:
-                self.logger.error(str(sys.exc_info()[0]))
+                self.logger.error(f"[{self.host}] {str(sys.exc_info()[0])}")
                 self.logger.debug(str(traceback.format_exc()))
                 self.err.append("Unable to connect to database.")
                 self.connection = None
@@ -64,7 +65,7 @@ class Postgres(Connector):
             try:
                 self.connection.commit()
             except:
-                self.logger.error(str(sys.exc_info()[0]))
+                self.logger.error(f"[{self.host}] {str(sys.exc_info()[0])}")
                 self.logger.debug(str(traceback.format_exc()))
                 self.err.append("Unable to commit transaction.")
                 return False
@@ -86,6 +87,10 @@ class Postgres(Connector):
     def execute(self, sql, params=None):
         if self.connection is not None:
             try:
+                self.logger.debug(f"[{self.host}] SQL: {str(sql)}")
+                if params is not None:
+                    self.logger.debug(f"[{self.host}] Params: {str(params)}")
+
                 cur = self.connection.execute(sql, params=params)
 
                 # Move to last set in results (mimic psycopg2)
@@ -94,13 +99,14 @@ class Postgres(Connector):
 
                 return cur
             except:
-                self.logger.error(str(sys.exc_info()[0]))
+                self.logger.error(f"[{self.host}] {str(sys.exc_info()[0])}")
                 self.logger.debug(str(traceback.format_exc()))
                 self.err.append("Query execution failed.")
                 raise
             
         else:
             self.err.append("Unable to establish connection")
+            self.logger.error(f"[{self.host}] Unable to establish connection")
             raise ConnectionError("Unable to establish connection")
 
     def fetchmany(self, sql, params=None, size=None):
@@ -113,13 +119,13 @@ class Postgres(Connector):
             try:
                 headers = [{ "name": desc[0], "type": "text" } for desc in cur.description]
             except TypeError:
-                self.logger.error(str(sys.exc_info()[0]))
+                self.logger.error(f"[{self.host}] {str(sys.exc_info()[0])}")
                 self.logger.debug(str(sql))
                 self.logger.debug(str(traceback.format_exc()))
                 self.err.append("Unable to parse columns.")
                 headers = []
             except:
-                self.logger.error(str(sys.exc_info()[0]))
+                self.logger.error(f"[{self.host}] {str(sys.exc_info()[0])}")
                 self.logger.debug(str(sql))
                 self.logger.debug(str(traceback.format_exc()))
                 self.err.append("Unable to parse columns.")
@@ -154,11 +160,11 @@ class Postgres(Connector):
                 if str(e) == "the last operation didn't produce a result":
                     pass
                 else:
-                    logging.debug(str(sys.exc_info()[0]))
-                    logging.debug(str(traceback.format_exc()))
+                    self.logger.error(f"[{self.host}] {str(sys.exc_info()[0])}")
+                    self.logger.debug(str(traceback.format_exc()))
                     return
             except:
-                self.logger.error(str(sys.exc_info()[0]))
+                self.logger.error(f"[{self.host}] {str(sys.exc_info()[0])}")
                 self.logger.debug(str(traceback.format_exc()))
                 self.err.append("Unable to fetch rows for query.")
                 raise
@@ -166,13 +172,14 @@ class Postgres(Connector):
             try:
                 cur.close()
             except:
-                self.logger.error(str(sys.exc_info()[0]))
+                self.logger.error(f"[{self.host}] {str(sys.exc_info()[0])}")
                 self.logger.debug(str(traceback.format_exc()))
                 self.err.append("Unable to close cursor for query.")
                 raise
 
         else:
             self.err.append("Unable to establish connection")
+            self.logger.error(f"[{self.host}] Unable to establish connection.")
             raise ConnectionError("Unable to establish connection")
 
     @property
@@ -207,7 +214,6 @@ class Postgres(Connector):
         return response
 
     def meta(self, request_data={}, **kwargs):
-
         category=request_data.get("request_type", "").lower()
 
         sub_cat = None
@@ -282,13 +288,13 @@ class Postgres(Connector):
             if sub_cat == "subpartitions":
                 sub_cat = "partitions"
                 
-
         if sub_cat is None:
             return { "ok": True }
         
         if item_name is None:
             item_name = sub_cat[:-1]
 
+        self.logger.debug(f"[META] {category}/{sub_cat}/{item_name} + {schema_name}.{object_name}")
         return self._meta(sub_cat, item_name=item_name, schema_name=schema_name, object_name=object_name)
 
     def ddl(self, request_data={}, **kwargs):

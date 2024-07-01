@@ -43,6 +43,7 @@ class Connector:
     
     @property
     def grants(self):
+        self.err.append("Not implemented.")
         return ""
     
     def meta(self, **kwargs):

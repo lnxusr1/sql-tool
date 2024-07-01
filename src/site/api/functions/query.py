@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from core.tokenizer import tokenizer
-from core.interactions import Response
-from connectors.selector import get_connection
+import os
 import sys
 import traceback
 import logging
+from core.tokenizer import tokenizer
+from core.interactions import Response
+from connectors.selector import get_connection
 
 
 def get_query_response(request):
@@ -15,6 +16,9 @@ def get_query_response(request):
     resp.add_header(tokenizer.cookie)
 
     json_data = request.json_data
+
+    logging.getLogger("QUERY").info(f"{os.environ['IP_ADDR']} - {tokenizer.username} - {json_data.get('connection')} - {json_data.get('role')} - {json_data.get('db')} - {json_data.get('sql')}")
+
     if not isinstance(json_data, dict):
         json_data = {}
 
